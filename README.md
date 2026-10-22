@@ -8,15 +8,18 @@
 [![React 19](https://img.shields.io/badge/React-19-blue?style=flat-square&logo=react)](https://react.dev/)
 [![Tailwind CSS v4](https://img.shields.io/badge/Tailwind-v4-38bdf8?style=flat-square&logo=tailwindcss)](https://tailwindcss.com/)
 [![SEC EDGAR XBRL](https://img.shields.io/badge/Data-SEC_EDGAR_XBRL-003366?style=flat-square)](https://www.sec.gov/edgar)
+[![Vercel Deployment](https://img.shields.io/badge/Deployment-Live_Vercel-black?style=flat-square&logo=vercel)](https://equity-research-jet.vercel.app/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-green?style=flat-square)](LICENSE)
 
-[Live Terminal](http://localhost:3000) &bull; [Sample NVDA Model](http://localhost:3000/company/NVDA) &bull; [Methodology](#quantitative-methodology)
+[Open Equity Research | Financial Terminal](https://equity-research-jet.vercel.app/) &bull; [Sample NVDA Model](https://equity-research-jet.vercel.app/company/NVDA) &bull; [Methodology](#quantitative-methodology)
 
 </div>
 
 ---
 
 ## Preview
+
+**Live Terminal**: [Open Equity Research | Financial Terminal](https://equity-research-jet.vercel.app/)
 
 ![FinTracker Demo](./public/fintracker-demo.gif)
 
@@ -213,7 +216,7 @@ Threshold criteria:
    ```
 
 5. **Access Terminal**:
-   Open `http://localhost:3000` in a browser.
+   Open [Open Equity Research | Financial Terminal](https://equity-research-jet.vercel.app/) in a browser for the live deployment, or `http://localhost:3000` locally.
 
 ### Production Build
 
