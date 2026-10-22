@@ -1,183 +1,192 @@
-# Open Equity Research Platform
+<div align="center">
 
-An institutional-grade, automated equity research and quantitative valuation terminal. Built with Next.js 16, TypeScript, Tailwind CSS, and Recharts.
+# FinTracker
 
----
+**Institutional Quantitative Equity Research and Automated Valuation Terminal**
 
-## 1. Overview: What Is This Project?
+[![Next.js 16](https://img.shields.io/badge/Next.js-16.3.2-black?style=flat-square&logo=next.js)](https://nextjs.org/)
+[![React 19](https://img.shields.io/badge/React-19-blue?style=flat-square&logo=react)](https://react.dev/)
+[![Tailwind CSS v4](https://img.shields.io/badge/Tailwind-v4-38bdf8?style=flat-square&logo=tailwindcss)](https://tailwindcss.com/)
+[![SEC EDGAR XBRL](https://img.shields.io/badge/Data-SEC_EDGAR_XBRL-003366?style=flat-square)](https://www.sec.gov/edgar)
+[![License: MIT](https://img.shields.io/badge/License-MIT-green?style=flat-square)](LICENSE)
 
-Most equity research tools on the internet fall into one of two extremes:
-1. **Overcomplicated spreadsheets**: Bloated 50-tab Excel files that break whenever a formula changes, require manual data entry, and are difficult to share or automate.
-2. **Black-box websites**: Stock screeners that flash a badge saying "Undervalued by 28%" without showing you the underlying cash flow projections, discount rates, or mathematical assumptions.
+[Live Terminal](http://localhost:3000) &bull; [Sample NVDA Model](http://localhost:3000/company/NVDA) &bull; [Methodology](#quantitative-methodology)
 
-The **Open Equity Research Platform** takes a transparent, institutional approach. It pulls audited regulatory financial statements directly from the US Securities and Exchange Commission (SEC EDGAR), feeds them into a live Discounted Cash Flow (DCF) model, reverse-engineers what operating performance current stock prices require, and stress-tests everything across a 5,000-run Monte Carlo probability laboratory.
-
-Everything runs in real-time, recalculates client-side in less than 5 milliseconds, operates completely free without requiring expensive API subscriptions or active database instances, and explains every calculation in plain English.
-
----
-
-## 2. Core Concepts Explained in Plain English
-
-Finance textbooks often wrap simple economic concepts in dense jargon. Here is how the core engines in this terminal work and why they matter to an investor.
-
-### Discounted Cash Flow (DCF)
-* **The Analogy**: Imagine you are thinking about buying a rental property. You do not just look at what the property sold for yesterday; you estimate how much cash in rent it will put into your bank account each year after property taxes, maintenance, and insurance. Then you discount that future money because a dollar received five years from now is worth less than a dollar in your hand today.
-* **In Corporate Finance**: A corporation is valued by its **Unlevered Free Cash Flow (FCFF)**—the actual cash generated from operations after paying taxes, reinvesting in equipment (CapEx), and funding working capital. The terminal projects these cash flows over 5 forecast years and calculates a Terminal Value for all years beyond Year 5.
-
-### Cost of Capital (WACC) & Hurdle Rates
-* **The Concept**: Why discount future cash? Because of risk and inflation. If the US government pays 4.25% on a risk-free 10-year Treasury bond, you would never risk money in a volatile stock unless you expected a higher return.
-* **How It Works**: The **Weighted Average Cost of Capital (WACC)** blends the cost of equity (calculated via CAPM: Risk-Free Rate + Beta x Equity Risk Premium) and the after-tax cost of debt. This forms your hurdle rate: the discount rate applied to each future year's cash flows.
-
-### "What Is The Market Pricing In?" (Reverse DCF)
-* **The Problem with Standard DCFs**: If you build a model that says Apple is worth $280 while it trades at $180, you have not proved the market is wrong; you may simply have entered overly optimistic assumptions.
-* **The Solution**: Instead of guessing the future, the terminal runs a **Reverse DCF** using a binary-search solver. It asks: *"Given today's actual stock price of $180, what revenue growth rate and profit margin must the company achieve over the next five years to justify that price?"*
-* **Why It Matters**: If the stock price demands 25% annual revenue growth for five straight years, but the company has historically grown at 8%, the market is pricing in near-miraculous execution. If the price only implies 4% growth, the market may be excessively pessimistic, offering a potential margin of safety.
-
-### Monte Carlo Stochastic Simulation & Value-at-Risk (VaR)
-* **The Concept**: The real economy is uncertain. Supply chains wobble, recessions happen, and customer demand shifts. Relying on a single forecast number is risky.
-* **How It Works**: The Monte Carlo laboratory applies Geometric Brownian motion shocks to annual growth rates, generating **5,000 independent parallel trajectories** around historical averages.
-* **Key Metrics**:
-  * **Probability of Undervaluation**: The percentage of simulated scenarios where intrinsic value exceeds today's market price.
-  * **Median Value (P50)**: The statistical midpoint of the valuation distribution.
-  * **95% Value-at-Risk (VaR 95%)**: The 5th percentile valuation floor. Tells an investor: only 5% of simulated economic paths resulted in a valuation below this dollar level.
-  * **Expected Shortfall (CVaR 95%)**: The conditional average valuation inside the worst 5% tail scenarios.
-
-### DCF Model Reliability Index
-* **The Concept**: Not every company is suited for a DCF model. A mature consumer staples company with steady margins is ideal; an early-stage biotech with zero revenue or an oil exploration company with wild commodity swings is not.
-* **How It Works**: The engine scores each company from 0 to 100 based on three factors:
-  1. **Historical Margin Volatility**: High variance in operating margins reduces confidence.
-  2. **Terminal Value Dependency Ratio**: If more than 80% of enterprise value comes from the perpetual terminal period rather than near-term cash flows, the score is penalized for extreme sensitivity.
-  3. **Filing Depth**: Checks for at least 3 to 5 continuous years of clean SEC 10-K filings.
-
-### Altman Z-Score & Solvency Check
-* **The Concept**: Developed by NYU Professor Edward Altman, this formula acts as a balance sheet blood test to measure bankruptcy risk over a 2-year horizon.
-* **How It Works**: It weights working capital, retained earnings, operating profitability (EBIT), market capitalization, and asset turnover relative to total liabilities.
-  * **Safe Zone (Z > 2.99)**: Financially sound with minimal solvency risk.
-  * **Gray Zone (1.81 <= Z <= 2.99)**: Moderate risk; warrants attention to debt maturities.
-  * **Distress Zone (Z < 1.81)**: Elevated balance sheet stress.
+</div>
 
 ---
 
-## 3. How to Use the Terminal (Step-by-Step)
+## Preview
 
-### Step 1: Search for Any Ticker
-* Navigate to the home page (`http://localhost:3000`).
-* Enter any public US stock ticker (e.g., `AAPL`, `NVDA`, `MSFT`, `TSLA`, `GOOGL`, `BRK-B`).
-* The system resolves the ticker to its SEC Central Index Key (CIK) in 0ms using an in-memory directory cache, pulls live market quotes, and standardizes multi-year financial statements.
-
-### Step 2: Read the Persistent Valuation Header
-At the top of every company page, a dark persistent header displays five critical indicators:
-1. **Computed Value**: The intrinsic fair value per share under your active scenario.
-2. **Latest Market Price**: The live real-time trading price from market data feeds.
-3. **Scenario Valuation Gap**: The percentage discount (green) or premium (rose) between fair value and market price.
-4. **WACC Discount Rate**: The effective hurdle rate applied to the cash flows.
-5. **Quant Lab Insight Bar**: A summary showing the Monte Carlo P50 median value, probability of undervaluation, and 95% VaR floor, accompanied by a direct button `[OPEN FULL MONTE CARLO LAB & CHARTS ->]`.
-
-### Step 3: Tab 1 - Financials & Historical Statements
-* Review audited numbers downloaded directly from SEC EDGAR annual 10-K filings.
-* Inspect multi-year revenue, operating income (EBIT), net income, diluted shares, and operating margins.
-* Verify whether the company has an `AUDITED STATEMENTS VERIFIED` badge or an amber `[CAUTION] PRESET ASSUMPTIONS ACTIVE` alert.
-
-### Step 4: Tab 2 - Calibrate Assumptions
-* Choose between **Base Case**, **Bull Case**, and **Bear Case** presets.
-* Adjust interactive sliders for:
-  * 5-Year Revenue Growth vector (year-by-year)
-  * Target Operating (EBIT) Margin
-  * Corporate Tax Rate
-  * CapEx and Working Capital reinvestment percentages
-  * Risk-Free Rate, Beta, and Equity Risk Premium
-* Every adjustment recalculates the model instantly in the browser without server lag.
-
-### Step 5: Tab 3 - Valuation & Sensitivity Matrix
-* View the full 5-year Free Cash Flow waterfall table, Terminal Value calculation, and Enterprise-to-Equity reconciliation.
-* Compare deterministic scenarios side-by-side: **Bear Case**, **Base Case**, **Bull Case**, and the stochastic **Monte Carlo Median (P50)**.
-* Check the **5x4 2D Sensitivity Matrix** cross-referencing WACC rates against perpetual growth rates ($g$).
-* At the bottom, click the **Next Quantitative Step** banner to transition directly into the Monte Carlo simulation.
-
-### Step 6: Tab 4 - Monte Carlo Quantitative Lab
-* **Stochastic Controls**: Select simulation sample size (1,000, 5,000, or 10,000 paths) and adjust the Annualized Growth Volatility slider ($\sigma$ from 2.0% to 15.0%).
-* **Risk Metrics Matrix**: Review the 6 core quantitative indicators:
-  * Probability of Undervaluation
-  * Median Intrinsic Value ($P_{50}$)
-  * Expected Mean Value ($E[P]$)
-  * 95% Value-at-Risk ($P_{05}$ downside floor)
-  * Expected Shortfall (CVaR tail risk)
-  * Interquartile Spread ($P_{75} - P_{25}$)
-* **Percentile Distribution**: Review exact price boundaries for the 10th, 25th, 50th, 75th, and 90th percentiles.
-* **45-Path Stochastic Trajectory Fan (`460px`)**: Inspect 45 random-walk price trajectories over 5 years with an overlaid, bold median convergence path.
-* **Probability Density Curve (`360px`)**: Analyze the valuation distribution area chart with a red dashed reference line marking today's current market price.
-
-### Step 7: Tab 5 - Historical Model Backtest
-* Evaluates model calibration by transporting the engine back to **2020**.
-* Runs the DCF using only pre-2020 financial filings and contrasts the simulated 2020 valuation against the actual historical stock price and subsequent 5-year realized revenue growth.
-
-### Step 8: Tab 6 - Financial Health & Altman Z-Score
-* Review balance sheet solvency, working capital adequacy, and debt leverage.
-* Check the Altman Z-score classification (Safe Zone, Gray Zone, or Distress Zone).
-* Automatic sector detection provides specific context for banking and financial institutions where debt represents customer deposits.
-
-### Step 9: Tab 7 - Peer Comps & Similarity Engine
-* Compare the target company against industry peers.
-* Each peer receives a mathematical **Similarity Score (0 to 100)** based on logarithmic market-cap distance and operating margin proximity.
-* Use the one-click `[Import Peer]` button to ingest and analyze any peer's financial data on demand.
-
-### Step 10: Export Research Reports
-* Use the `[COPY REPORT]` button in the top toolbar to generate a standardized markdown investment memo suitable for documentation or team reviews.
-* Click `[EXPORT CSV]` to download the complete multi-year cash flow model into spreadsheet format.
+![FinTracker Demo](./public/fintracker-demo.gif)
 
 ---
 
-## 4. Software Architecture & Design Principles
+## Overview
 
-```
-+-----------------------------------------------------------------------------------+
-| CLIENT BROWSER (React 19 / Tailwind CSS / Recharts)                               |
-| Instant client-side recalculation (< 1ms) | Multi-Tab Institutional Interface     |
-+-----------------------------------------------------------------------------------+
-                                        |
-                                        v
-+-----------------------------------------------------------------------------------+
-| NEXT.JS 16 APP ROUTER (Turbopack Engine)                                          |
-| Edge Caching: s-maxage=3600 | IP Rate Limiter: 35 req/min sliding-window          |
-+-----------------------------------------------------------------------------------+
-         |                                                  |
-         v                                                  v
-+-------------------------------+         +-----------------------------------------+
-| IN-MEMORY DATABASE            |         | EXTERNAL DATA PROVIDERS                 |
-| (globalThis.__memoryDb)       |         |                                         |
-| * Pre-seeded S&P 500 stocks   |         | 1. SEC EDGAR API                        |
-| * 0ms response time           |         |    - 24h Ticker-to-CIK Directory Cache  |
-| * Complete PostgreSQL         |         |    - 160ms Pacing Queue (< 10 req/sec)  |
-|   decoupling (no hang on pause)         |    - Dual US-GAAP & IFRS-Full Parsers   |
-+-------------------------------+         |                                         |
-                                          | 2. MARKET DATA                          |
-                                          |    - Primary: yahoo-finance2 (live quote)|
-                                          |    - Fallback: Alpha Vantage API        |
-                                          |    - Safety defaults ($150 / 1.0 beta)  |
-                                          +-----------------------------------------+
+Institutional equity analysis is bifurcated between expensive closed-source terminals (\$24k/year) and retail web screeners that obscure their DCF models behind opaque, uncalibrated target prices. FinTracker is an open-source valuation engine that extracts 15 years of raw SEC EDGAR XBRL filings, normalizes conflicting GAAP and IFRS disclosures, and executes fundamental Discounted Cash Flow models client-side in under 5 milliseconds. The system couples deterministic multi-scenario cash flow modeling with reverse-engineered market expectations and a 5,000-iteration Monte Carlo simulation suite, running decoupled from external database downtime.
+
+---
+
+## Core Quantitative Capabilities
+
+* **Automated 3-Scenario DCF Modeling**: Generates 5-year Unlevered Free Cash Flow (UFCF) projections across Base, Bull, and Bear configurations. Projects sales trajectories from historical compound growth vectors, models NOPAT through operating margin scaling, and computes reinvestment requirements across Depreciation & Amortization (D&A), Capital Expenditures (CapEx), and Net Working Capital ($\Delta$NWC). Terminal Value is capitalized via the Gordon Growth Model and discounted using the Capital Asset Pricing Model (CAPM).
+* **Reverse DCF Solver ("What Is The Market Pricing In?")**: Bypasses subjective forecasting by deploying a binary search numerical solver to invert the DCF formula against current equity pricing. Back-solves the exact 5-year revenue CAGR and operating margin hurdle rates required to equate model intrinsic value to $P_{\text{market}}$, pinpointing market optimism premiums or structural valuation discounts.
+* **Probabilistic Monte Carlo Engine**: Stochastically models economic uncertainty through 5,000 growth iterations generated via the Box-Muller transform ($\sigma \in [2.0\%, 15.0\%]$). Computes empirical valuation probability density functions, 95% Value-at-Risk (VaR 95% downside floor), Expected Shortfall (CVaR tail expectation), Probability of Undervaluation, and a 45-path 5-year asset price trajectory fan with median convergence tracking.
+* **Out-of-Sample Model Backtesting**: Assesses predictive validity by executing an isolated projection calibrated strictly on pre-2020 regulatory filings. Compares the simulated 2020 intrinsic target against realized equity prices and contrasts baseline forecast growth against actual 2020-2025 audited financial execution.
+* **Credit & Financial Health Decomposition**: Evaluates corporate solvency using the 5-factor Altman Z-Score, categorized into Safe ($Z > 2.99$), Gray ($1.81 \le Z \le 2.99$), and Distress ($Z < 1.81$) zones. Breaks balance sheet health into sub-scores across Liquidity, Solvency, Financial Leverage, and Profitability, applying structural warnings for financial institutions where deposit liabilities distort working capital metrics.
+* **Valuation Triangle & Peer Multiples**: Triangulates DCF intrinsic valuation against sector peer multiples (P/E, EV/EBIT, EV/Sales) and 10-year historical medians. Scores comparable firms using a quantitative similarity index based on logarithmic market capitalization distance and operating margin proximity.
+* **2D Sensitivity Matrix**: Cross-analyzes fair value across a 5x4 matrix of Weighted Average Cost of Capital discount rates ($\text{WACC} \pm 1.0\%$) against perpetual terminal growth rates ($g \in [1.5\%, 3.0\%]$). Color-codes cells trading at a discount to market spot prices.
+
+---
+
+## System Architecture
+
+```mermaid
+graph LR
+    subgraph Ingestion ["1. Regulatory Ingestion & Market Feeds"]
+        SEC["SEC EDGAR API (Company Facts)"] -->|160ms Queue Throttle| Pacer["Request Pacer & Retry Engine"]
+        Pacer --> CIKCache["CIK Directory (24h In-Memory Cache)"]
+        YF["Yahoo Finance API"] --> MDLayer["Market Data Engine (Quote, Beta, Sector)"]
+    end
+
+    subgraph Normalization ["2. Normalization & Memory Store"]
+        CIKCache --> Parser["XBRL Parser (US-GAAP & IFRS Tags)"]
+        Parser --> MemDB["In-Memory Database (globalThis.__memoryDb)"]
+        MDLayer --> MemDB
+    end
+
+    subgraph Compute ["3. Quantitative Valuation Engines"]
+        MemDB --> DCF["3-Scenario DCF (UFCF & Gordon TV)"]
+        MemDB --> RevDCF["Reverse DCF Solver (Binary Search)"]
+        MemDB --> MC["Monte Carlo Lab (5,000 Paths, Box-Muller)"]
+        MemDB --> Solv["Altman Z-Score & Health Engine"]
+        MemDB --> Comps["Peer Similarity Engine"]
+    end
+
+    subgraph Edge ["4. Edge Routing & Client Interface"]
+        DCF --> Client["Next.js 16 UI (Turbopack / Recharts)"]
+        RevDCF --> Client
+        MC --> Client
+        Solv --> Client
+        Comps --> Client
+        MW["Middleware (Sliding-Window 35 req/min)"] -.-> Client
+    end
 ```
 
-### Key Technical Pillars
-1. **Zero Database Dependency**: External managed databases can pause or time out. The platform utilizes a memory-first architecture (`globalThis.__memoryDb`) with pre-seeded S&P 500 financials. Lookups resolve in under 5 milliseconds with zero connection latency.
-2. **SEC Request Pacing Queue**: SEC EDGAR strictly enforces a limit of 10 requests per second per IP. The engine routes all outbound SEC requests through a 160ms queue throttler (~6.25 req/sec max) with automatic 2,000ms exponential backoff.
-3. **Free & Resilient Market Data**: Direct market quotes are fetched via `yahoo-finance2` (price, beta, sector, and daily history) with seamless fallback to Alpha Vantage.
-4. **Abuse Protection & Edge Caching**: Next.js middleware implements a sliding-window rate limiter (35 requests/minute per client IP) with edge caching headers (`s-maxage=3600, stale-while-revalidate=86400`) to protect infrastructure under high traffic.
-5. **Strict Typography & Zero Emojis**: Clean, monospace financial terminal design (`font-mono`) with high-contrast borders and institutional status tags (`[QUANT LAB]`, `[AUDITED]`, `[CAUTION]`).
+### Engineering Highlights
+
+* **Database Decoupling (<5ms Latency)**: Eliminates connection hangs caused by paused cloud database instances. Primary operations run on an in-memory storage layer (`globalThis.__memoryDb`) pre-seeded with S&P 500 financial histories, executing lookups in under 5ms. Optional PostgreSQL replication runs asynchronously with a 1-second timeout ceiling.
+* **SEC EDGAR Regulatory Pipeline & Pacing Queue**: Queries raw SEC EDGAR JSON endpoints (`data.sec.gov`) covering up to 15 years of Form 10-K and Form 20-F filings. Resolves CIK identities in 0ms via a 24-hour cached directory. Outbound SEC requests pass through a FIFO pacing queue enforcing a minimum 160ms interval (~6.25 req/sec max) to maintain compliance with the SEC 10 req/sec threshold, backed by automated exponential backoff on HTTP 429 responses.
+* **Dual GAAP & IFRS Normalization**: Dynamically reconciles accounting standard divergences. Parses domestic US-GAAP concepts (`RevenueFromContractWithCustomerExcludingAssessedTax`, `OperatingIncomeLoss`) and foreign private issuer IFRS disclosures (`Revenue`, `OperatingProfitLoss`) while normalizing multi-currency reports (`USD`, `EUR`, `GBP`).
+* **Zero-Cost Market Data Integration**: Routes real-time equity spot prices, beta coefficients, sector groupings, and daily closing series through `yahoo-finance2`, eliminating reliance on restricted free-tier API quotas. An Alpha Vantage provider serves as a secondary fallback.
+* **Edge Abuse Protection**: Next.js Edge Middleware enforces an in-memory sliding-window rate limiter restricting client IPs to 35 requests per minute across `/api/companies/*` and `/api/dcf`. Edge caching headers (`s-maxage=3600, stale-while-revalidate=86400`) cache immutable filing data across CDN nodes.
+* **Data Provenance & Audit Banners**: An automated audit pass scans statement completeness. Verified filings render an `AUDITED STATEMENTS VERIFIED` badge; non-standard or missing regulatory tags trigger an amber `[CAUTION] PRESET ASSUMPTIONS ACTIVE` banner detailing missing fields with calibration shortcuts.
 
 ---
 
-## 5. Local Setup & Quickstart Guide
+## Quantitative Methodology
+
+<details>
+<summary><strong>1. Unlevered Free Cash Flow (UFCF) and Enterprise Value</strong></summary>
+
+Corporate cash distributions are projected over a 5-year discrete forecast horizon:
+
+$$\text{NOPAT}_t = \text{EBIT}_t \times (1 - \tau)$$
+
+$$\text{UFCF}_t = \text{NOPAT}_t + \text{D\&A}_t - \text{CapEx}_t - \Delta\text{NWC}_t$$
+
+Where $\tau$ is the effective corporate tax rate, $\text{D\&A}$ is modeled at 3.0% of revenue, $\text{CapEx}$ at 4.0% of revenue, and $\Delta\text{NWC}$ at 5.0% of annual working capital baselines.
+
+The perpetual Terminal Value ($TV_5$) is determined via the Gordon Growth Model:
+
+$$TV_5 = \frac{\text{UFCF}_5 \times (1 + g)}{\text{WACC} - g}$$
+
+Where $g$ is the long-run perpetual growth rate (constrained to $g < \text{WACC}$). Enterprise Value (EV) and Equity Value Per Share are calculated as:
+
+$$\text{Enterprise Value (EV)} = \sum_{t=1}^{5} \frac{\text{UFCF}_t}{(1 + \text{WACC})^t} + \frac{TV_5}{(1 + \text{WACC})^5}$$
+
+$$\text{Intrinsic Fair Value Per Share} = \frac{\text{EV} - \text{Total Debt} + \text{Cash}}{\text{Diluted Shares Outstanding}}$$
+
+The Weighted Average Cost of Capital (WACC) is established using the Capital Asset Pricing Model (CAPM):
+
+$$\text{Cost of Equity } (K_e) = R_f + \beta \times \text{ERP}$$
+
+$$\text{WACC} = \left( \frac{E}{V} \times K_e \right) + \left( \frac{D}{V} \times K_d \times (1 - \tau) \right)$$
+
+</details>
+
+<details>
+<summary><strong>2. Reverse DCF Binary Search Solver</strong></summary>
+
+Given observed market equity valuation $P_{\text{market}}$, the system solves for the implied operational vector $\mathbf{\theta}^* = (g^*, m^*)$ such that:
+
+$$\left| f_{\text{DCF}}(\mathbf{\theta}^*) - P_{\text{market}} \right| < \epsilon, \quad \epsilon = 10^{-4}$$
+
+The binary search algorithm evaluates bounds over a 40-iteration halving sequence:
+
+$$g^{(k+1)} = \frac{g_{\text{low}}^{(k)} + g_{\text{high}}^{(k)}}{2}, \quad g \in [-0.30, 0.80]$$
+
+$$m^{(k+1)} = \frac{m_{\text{low}}^{(k)} + m_{\text{high}}^{(k)}}{2}, \quad m \in [0.01, 0.90]$$
+
+If $f_{\text{DCF}}(g^{(k)}) < P_{\text{market}}$, then $g_{\text{low}}^{(k+1)} = g^{(k)}$; else $g_{\text{high}}^{(k+1)} = g^{(k)}$. The solver isolates implied revenue growth and operating margin in under 40 iterations.
+
+</details>
+
+<details>
+<summary><strong>3. Box-Muller Transform (Monte Carlo Growth Permutations)</strong></summary>
+
+Random growth deviations are generated using the Box-Muller transformation of independent uniform variates $U_1, U_2 \sim \text{Uniform}(0, 1)$:
+
+$$Z_0 = \sqrt{-2 \ln U_1} \cos(2\pi U_2)$$
+
+$$g_{\text{sim}, t} = \mu_{\text{hist}} + \sigma \cdot Z_0, \quad \sigma \in [0.02, 0.15]$$
+
+Across $N = 5,000$ simulation trials, simulated equity prices $\{P_i\}_{i=1}^{N}$ are sorted in ascending order to establish the empirical cumulative distribution function:
+
+$$\text{VaR}_{0.95} = P_{\lfloor 0.05 N \rfloor}$$
+
+$$\text{CVaR}_{0.95} = \frac{1}{\lfloor 0.05 N \rfloor} \sum_{i=1}^{\lfloor 0.05 N \rfloor} P_i$$
+
+$$\text{Prob. Undervalued} = \frac{1}{N} \sum_{i=1}^{N} \mathbb{I}(P_i > P_{\text{market}}) \times 100\%$$
+
+</details>
+
+<details>
+<summary><strong>4. Altman Z-Score Formulation</strong></summary>
+
+Corporate solvency is assessed across five standardized balance sheet ratios:
+
+$$Z = 1.2 X_1 + 1.4 X_2 + 3.3 X_3 + 0.6 X_4 + 0.999 X_5$$
+
+$$\begin{aligned}
+X_1 &= \frac{\text{Working Capital}}{\text{Total Assets}} & X_2 &= \frac{\text{Retained Earnings}}{\text{Total Assets}} \\
+X_3 &= \frac{\text{EBIT}}{\text{Total Assets}} & X_4 &= \frac{\text{Market Value of Equity}}{\text{Total Liabilities}} \\
+X_5 &= \frac{\text{Sales}}{\text{Total Assets}}
+\end{aligned}$$
+
+Threshold criteria:
+* $Z > 2.99 \implies \text{Safe Zone}$ (Low default probability)
+* $1.81 \le Z \le 2.99 \implies \text{Gray Zone}$ (Moderate credit risk)
+* $Z < 1.81 \implies \text{Distress Zone}$ (High probability of balance sheet restructuring)
+
+</details>
+
+---
+
+## Local Development
 
 ### Prerequisites
-* **Node.js**: Version 18.18.0 or newer (Node.js 20+ recommended).
-* **Package Manager**: `npm` (comes with Node.js) or `pnpm` / `yarn`.
 
-### Installation Steps
+* Node.js 18.18.0 or newer (Node.js 20+ LTS recommended)
+* npm 9+ or pnpm 8+
+
+### Setup
 
 1. **Clone the repository**:
    ```bash
-   git clone https://github.com/your-username/finmodel.git
-   cd finmodel/equity-research
+   git clone https://github.com/DevanshLath/FinTracker.git
+   cd FinTracker/equity-research
    ```
 
 2. **Install dependencies**:
@@ -185,29 +194,29 @@ At the top of every company page, a dark persistent header displays five critica
    npm install
    ```
 
-3. **Configure Environment Variables** (Optional):
-   Create a `.env.local` file inside the `equity-research` directory:
-   ```env
-   # SEC EDGAR requires a custom User-Agent identifying your application
-   SEC_USER_AGENT=YourNameOrFirm yourname@example.com
+3. **Configure Environment Variables**:
+   Create a `.env.local` file in `equity-research/`:
+   ```bash
+   # Required by SEC EDGAR: Format as 'OrganizationName contact@domain.com'
+   SEC_USER_AGENT=FinTrackerResearch research@fintracker.dev
 
-   # Optional fallback market data API key (free at alphavantage.co)
+   # Optional fallback provider key (free tier at alphavantage.co)
    ALPHA_VANTAGE_API_KEY=demo
 
-   # Optional database connection (defaults cleanly to in-memory store if omitted)
+   # Optional PostgreSQL connection (defaults to in-memory store if omitted)
    DATABASE_URL=
    ```
 
-4. **Start the development server**:
+4. **Launch Development Server (Turbopack)**:
    ```bash
    npm run dev
    ```
 
-5. **Open the platform**:
-   Navigate to [http://localhost:3000](http://localhost:3000) in your web browser.
+5. **Access Terminal**:
+   Open `http://localhost:3000` in a browser.
 
-### Building for Production
-To generate an optimized production build using Next.js Turbopack:
+### Production Build
+
 ```bash
 npm run build
 npm run start
@@ -215,34 +224,6 @@ npm run start
 
 ---
 
-## 6. Project Structure
+## Disclaimer
 
-```
-equity-research/
-├── app/
-│   ├── api/
-│   │   ├── companies/[ticker]/route.ts  # Company facts, SEC ingest, market quotes
-│   │   ├── dcf/route.ts                # Server-side DCF execution endpoint
-│   │   └── home/route.ts               # Pre-seeded directory & market snapshot
-│   ├── company/[ticker]/page.tsx       # Dynamic company valuation workspace
-│   ├── globals.css                     # Monospace styling & Tailwind configuration
-│   ├── layout.tsx                      # Root layout & terminal metadata titles
-│   └── page.tsx                        # Home page & ticker search engine
-├── components/
-│   └── DCFForm.tsx                     # Primary valuation UI (all 7 tabs, Monte Carlo lab)
-├── lib/
-│   ├── db.ts                           # High-speed in-memory store & fallback database
-│   ├── market-data.ts                  # Market quote client (yahoo-finance2 + fallback)
-│   ├── sec-client.ts                   # SEC EDGAR parser, 160ms throttler, CIK cache
-│   └── valuation.ts                    # Core corporate finance & DCF math routines
-├── middleware.ts                       # Sliding-window IP rate limiter & edge routing
-└── package.json                        # Dependencies and scripts
-```
-
----
-
-## 7. License & Disclaimer
-
-**License**: Distributed under the MIT License.
-
-**Financial Disclaimer**: This platform is built for educational, quantitative research, and financial modeling purposes only. Calculations and intrinsic values generated by this software do not constitute financial advice, investment recommendations, or an endorsement to buy or sell securities. Always conduct independent fundamental research and consult a licensed financial advisor before making investment decisions.
+FinTracker is software engineered strictly for quantitative financial research, computational economics, and academic evaluation. Output calculations, intrinsic valuations, and simulation parameters do not constitute financial advice, securities endorsements, or investment recommendations.
